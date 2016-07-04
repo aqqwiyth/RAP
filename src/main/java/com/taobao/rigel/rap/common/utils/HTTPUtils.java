@@ -34,6 +34,8 @@ public class HTTPUtils {
         con.setRequestProperty("User-Agent", USER_AGENT);
         con.setRequestProperty("Accept-Charset", "utf-8");
         con.setRequestProperty("contentType", "utf-8");
+        con.setConnectTimeout(10000);
+        con.setReadTimeout(10000);
 
         int responseCode = con.getResponseCode();
         logger.info("\nSending 'GET' request to URL : " + url);

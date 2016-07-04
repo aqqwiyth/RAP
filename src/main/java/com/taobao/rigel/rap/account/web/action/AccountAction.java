@@ -1,20 +1,15 @@
 package com.taobao.rigel.rap.account.web.action;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.taobao.rigel.rap.account.bo.Notification;
 import com.taobao.rigel.rap.account.bo.Role;
 import com.taobao.rigel.rap.account.bo.User;
 import com.taobao.rigel.rap.common.base.ActionBase;
 import com.taobao.rigel.rap.common.service.impl.ContextManager;
-import com.taobao.rigel.rap.common.utils.CacheUtils;
-import com.taobao.rigel.rap.common.utils.Pinyin4jUtil;
-import com.taobao.rigel.rap.common.utils.StringUtils;
-import com.taobao.rigel.rap.common.utils.SystemVisitorLog;
+import com.taobao.rigel.rap.common.utils.*;
 import com.taobao.rigel.rap.organization.bo.Corporation;
 import com.taobao.rigel.rap.organization.service.OrganizationMgr;
-import sun.misc.Cache;
-
-import javax.mail.internet.AddressException;
 import java.util.*;
 
 /**
@@ -31,6 +26,7 @@ public class AccountAction extends ActionBase {
     private String newPassword;
     private String name;
     private String email;
+    private String token;
     private String SSO_TOKEN;
     private String BACK_URL;
     private OrganizationMgr organizationMgr;
@@ -63,12 +59,6 @@ public class AccountAction extends ActionBase {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String test() throws AddressException, InterruptedException {
-
-
-        return SUCCESS;
     }
 
     public String getNotificationList() {
@@ -262,6 +252,14 @@ public class AccountAction extends ActionBase {
         this.email = email.trim().toLowerCase();
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
     public String getProfileProperty() {
         return profileProperty;
     }
@@ -334,6 +332,51 @@ public class AccountAction extends ActionBase {
     public String register() {
         doLogout();
         return SUCCESS;
+    }
+
+    /**
+     * 外部登陆
+     *
+     * @return
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public String loginByPublish() throws Exception {
+        String token = getToken();
+        //从外部登陆
+        String string = HTTPUtils.sendGet("http://sync.superboss.cc/user/getUserByToken?token=" + token);
+        JSONObject object = JSONObject.parseObject(string);
+        User user = new User();
+        user.setAccount(object.getString("name"));
+        user.setPassword(UUID.randomUUID().toString());
+        user.setName(object.getString("name"));
+        user.setEmail(object.getString("email"));
+        //先去数据库里找一把,找到了塞session
+        user = getAccountMgr().getUser(getAccount());
+        if (user == null || user.getId() > 0) {
+            super.getAccountMgr().addUser(user);
+            user = getAccountMgr().getUser(getAccount());
+        }
+        if (user == null || user.getId() > 0) {
+            setErrMsg("出细细达");
+            return ERROR;
+        }
+        Map session = ContextManager.currentSession();
+        session.put(ContextManager.KEY_ACCOUNT, user.getAccount());
+        session.put(ContextManager.KEY_USER_ID, user.getId());
+        session.put(ContextManager.KEY_NAME, user.getName());
+        Set<Role> roleList = new HashSet<Role>();
+        for (Role role : user.getRoleList()) {
+            Role copied = new Role();
+            copied.setId(role.getId());
+            copied.setName(role.getName());
+            roleList.add(copied);
+        }
+        session.put(ContextManager.KEY_ROLE_LIST, roleList);
+        if (getReturnUrl() != null && !getReturnUrl().trim().equals("")) {
+            return "redirect";
+        }
+        return SUCCESS;
+
     }
 
     public String doRegister() {

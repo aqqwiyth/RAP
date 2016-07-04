@@ -5,12 +5,11 @@ import com.taobao.rigel.rap.account.bo.Role;
 import com.taobao.rigel.rap.account.bo.User;
 import com.taobao.rigel.rap.account.dao.AccountDao;
 import com.taobao.rigel.rap.common.config.SystemSettings;
+import java.util.*;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
-import java.util.*;
 
 public class AccountDaoImpl extends HibernateDaoSupport implements AccountDao {
 
@@ -33,7 +32,7 @@ public class AccountDaoImpl extends HibernateDaoSupport implements AccountDao {
     public boolean addUser(User user) {
         user.setLastLoginDate(new Date());
         user.setCreateDate(new Date());
-        user.setRealname("");
+        user.setRealname(user.getName());
         currentSession().save(user);
         return true;
     }
