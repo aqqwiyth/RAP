@@ -25,7 +25,7 @@
         <dependency>
             <groupId>org.apache.struts</groupId>
             <artifactId>struts2-core</artifactId>
-            <version>2.3.24.1</version>
+            <version>2.3.28</version>
             <exclusions>
                 <exclusion>
                     <artifactId>javassist</artifactId>
@@ -73,11 +73,24 @@
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>javax.servlet.jsp-api</artifactId>
             <version>2.3.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.struts</groupId>
             <artifactId>struts2-spring-plugin</artifactId>
-            <version>2.3.24.1</version>
+            <version>2.3.28</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -183,24 +196,61 @@
         </dependency>
     </dependencies>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
         <plugins>
+            <!--<plugin>-->
+                <!--<groupId>org.codehaus.cargo</groupId>-->
+                <!--<artifactId>cargo-maven2-plugin</artifactId>-->
+                <!--<version>1.4.17</version>-->
+                <!--<configuration>-->
+                    <!--<containerId>tomcat8x</containerId>-->
+                    <!--<containerUrl>http://apache.dataguru.cn/tomcat/tomcat-8/v8.0.30/bin/apache-tomcat-8.0.30.tar.gz</containerUrl>-->
+                    <!--<deployables>-->
+                        <!--<deployable>-->
+                            <!--<groupId>${project.groupId}</groupId>-->
+                            <!--<artifactId>${project.artifactId}</artifactId>-->
+                            <!--<type>war</type>-->
+                            <!--<properties>-->
+                                <!--<context>/</context>-->
+                            <!--</properties>-->
+                        <!--</deployable>-->
+                    <!--</deployables>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
             <plugin>
-                <groupId>org.codehaus.cargo</groupId>
-                <artifactId>cargo-maven2-plugin</artifactId>
-                <version>1.4.17</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
                 <configuration>
-                    <containerId>tomcat8x</containerId>
-                    <containerUrl>http://apache.dataguru.cn/tomcat/tomcat-8/v8.0.30/bin/apache-tomcat-8.0.30.tar.gz</containerUrl>
-                    <deployables>
-                        <deployable>
-                            <groupId>${project.groupId}</groupId>
-                            <artifactId>${project.artifactId}</artifactId>
-                            <type>war</type>
-                            <properties>
-                                <context>/</context>
-                            </properties>
-                        </deployable>
-                    </deployables>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>tomcat-maven-plugin</artifactId>
+                <configuration>
+                    <port>8081</port>
+                    <path>/</path>
+                    <uriEncoding>utf-8</uriEncoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.1.1</version>
+                <configuration>
+                    <webResources>
+                        <!--<resource>-->
+                            <!--<directory>${configPath}</directory>-->
+                            <!--<targetPath>WEB-INF/classes</targetPath>-->
+                        <!--</resource>-->
+                    </webResources>
                 </configuration>
             </plugin>
         </plugins>
