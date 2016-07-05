@@ -343,20 +343,20 @@ public class AccountAction extends ActionBase {
     public String loginByPublish() throws Exception {
         String token = getToken();
         //从外部登陆
-        String string = HTTPUtils.sendGet("http://sync.superboss.cc/user/getUserByToken?token=" + token);
+        String string = HTTPUtils.sendGet("http://sync.superboss.cc/user/getUserByToken.do?token=" + token);
         JSONObject object = JSONObject.parseObject(string);
         User user = new User();
         user.setAccount(object.getString("name"));
         user.setPassword(UUID.randomUUID().toString());
         user.setName(object.getString("name"));
         user.setEmail(object.getString("email"));
-        //先去数据库里找一把,找到了塞session
-        user = getAccountMgr().getUser(getAccount());
-        if (user == null || user.getId() > 0) {
+        //先去数据库里找一把,找不到插入DB一次,再取回来塞会话
+        User dbUser = getAccountMgr().getUser(user.getAccount());
+        if (dbUser == null) {
             super.getAccountMgr().addUser(user);
-            user = getAccountMgr().getUser(getAccount());
+            user = getAccountMgr().getUser(user.getAccount());
         }
-        if (user == null || user.getId() > 0) {
+        if (user == null) {
             setErrMsg("出细细达");
             return ERROR;
         }

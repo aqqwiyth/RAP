@@ -28,10 +28,11 @@
                 class="com.taobao.rigel.rap.account.web.action.AccountAction" method="doLogout">
             <result name="success" type="velocity">/platform/home.vm</result>
         </action>
-        <action name="register" class="com.taobao.rigel.rap.account.web.action.AccountAction"
-                method="register">
-            <result name="success" type="velocity">/account/register.vm</result>
-        </action>
+        <!--取消注册-->
+        <!--<action name="register" class="com.taobao.rigel.rap.account.web.action.AccountAction"-->
+                <!--method="register">-->
+            <!--<result name="success" type="velocity">/account/register.vm</result>-->
+        <!--</action>-->
         <action name="doRegister"
                 class="com.taobao.rigel.rap.account.web.action.AccountAction" method="doRegister">
             <result name="success" type="velocity">/platform/home.vm</result>
