@@ -355,6 +355,8 @@ public class AccountAction extends ActionBase {
         if (dbUser == null) {
             super.getAccountMgr().addUser(user);
             user = getAccountMgr().getUser(user.getAccount());
+        } else {
+            user = dbUser;
         }
         if (user == null) {
             setErrMsg("出细细达");
