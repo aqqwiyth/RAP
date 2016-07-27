@@ -18,6 +18,10 @@ import com.taobao.rigel.rap.project.service.ProjectMgr;
 import com.taobao.rigel.rap.workspace.bo.CheckIn;
 import com.taobao.rigel.rap.workspace.bo.Workspace;
 import com.taobao.rigel.rap.workspace.service.WorkspaceMgr;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.velocity.Template;
@@ -26,11 +30,6 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.*;
 
 public class WorkspaceAction extends ActionBase {
 
@@ -318,8 +317,8 @@ public class WorkspaceAction extends ActionBase {
      *
      * @return the save object loaded
      */
-	/*
-	 * public String querySave() {
+    /*
+     * public String querySave() {
 	 * setJson(workspaceMgr.getSave(getSaveId()).getProjectData()); return
 	 * SUCCESS; }
 	 */
@@ -467,6 +466,7 @@ public class WorkspaceAction extends ActionBase {
         }
 
         boolean isOk = false;
+        //如果被锁定,且锁定时间在10分钟内
         if (isLocked(getId())) {
             // if the project is locked, find the locker
             User user = getLocker(getId());
@@ -484,10 +484,14 @@ public class WorkspaceAction extends ActionBase {
             Map app = ContextManager.getApplication();
             if (app.get(ContextManager.KEY_PROJECT_LOCK_LIST) == null) {
                 app.put(ContextManager.KEY_PROJECT_LOCK_LIST, new HashMap());
+                app.put(ContextManager.KEY_PROJECT_LOCK_LIST_TIME, new HashMap());
             }
             Map projectLockList = (Map) app
                     .get(ContextManager.KEY_PROJECT_LOCK_LIST);
+            Map projectLockListTime = (Map) app
+                    .get(ContextManager.KEY_PROJECT_LOCK_LIST);
             if (projectLockList.get(curUserId) == null) {
+                projectLockListTime.put(getId(), System.currentTimeMillis());
                 projectLockList.put(curUserId, getId());
                 // System.out.println("user[" + curUserId + "] locked project["+
                 // getId() + "]");
@@ -510,6 +514,9 @@ public class WorkspaceAction extends ActionBase {
                 return SUCCESS;
             int userId = super.getCurUserId();
             int projectId = (Integer) projectLockList.get(userId);
+            Map projectLockListTime = (Map) app
+                    .get(ContextManager.KEY_PROJECT_LOCK_LIST_TIME);
+            projectLockListTime.remove(getId());
             projectLockList.remove(userId);
             logger.info("user[%d] unlock project[%d]", userId, projectId);
         }
@@ -546,12 +553,22 @@ public class WorkspaceAction extends ActionBase {
         return SUCCESS;
     }
 
+    /**
+     * 如果被锁定,且锁定时间在10分钟内
+     *
+     * @param projectId
+     * @return
+     */
     private boolean isLocked(int projectId) {
         Map app = ContextManager.getApplication();
         Map projectLockList = (Map) app
                 .get(ContextManager.KEY_PROJECT_LOCK_LIST);
+        Map<Integer, Long> projectLockListTime = (Map<Integer, Long>) app
+                .get(ContextManager.KEY_PROJECT_LOCK_LIST_TIME);
         return projectLockList != null
-                && projectLockList.containsValue(projectId);
+                && projectLockList.containsValue(projectId)
+                && projectLockListTime.containsKey(projectId)
+                && (System.currentTimeMillis() - projectLockListTime.get(projectId) > 600000L);
     }
 
     private User getLocker(int projectId) {

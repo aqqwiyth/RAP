@@ -11,6 +11,7 @@ import com.taobao.rigel.rap.common.utils.*;
 import com.taobao.rigel.rap.organization.bo.Corporation;
 import com.taobao.rigel.rap.organization.service.OrganizationMgr;
 import java.util.*;
+import org.apache.commons.lang.SystemUtils;
 
 /**
  * account action
@@ -292,6 +293,10 @@ public class AccountAction extends ActionBase {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public String doLogin() {
+        if (!SystemUtils.IS_OS_MAC) {
+            setErrMsg("请从发布系统登陆!");
+            return ERROR;
+        }
         if (super.getAccountMgr().validate(getAccount(), getPassword())) {
             Map session = ContextManager.currentSession();
             User user = getAccountMgr().getUser(getAccount());
@@ -382,6 +387,10 @@ public class AccountAction extends ActionBase {
     }
 
     public String doRegister() {
+        if (!SystemUtils.IS_OS_MAC) {
+            setErrMsg("请从发布系统登陆!");
+            return ERROR;
+        }
         if (!StringUtils.validateName(getName())) {
             setErrMsg(StringUtils.NAME_FORMAT_WARN_MSG);
             return ERROR;

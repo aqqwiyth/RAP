@@ -9,6 +9,7 @@ public class Parameter implements java.io.Serializable {
     private int id;
     private String mockData;
     private String name;
+    private boolean required;
     private String identifier;
     private String identifierChange;
     private String remarkChange;
@@ -174,6 +175,7 @@ public class Parameter implements java.io.Serializable {
         setName(parameter.getName());
         setRemark(parameter.getRemark());
         setValidator(parameter.getValidator());
+        setRequired(parameter.getRequired());
     }
 
     public List<Parameter> getParameterListOrdered() {
@@ -197,6 +199,14 @@ public class Parameter implements java.io.Serializable {
         parameter.getComplexParameterList().add(this);
     }
 
+    public boolean getRequired() {
+        return this.required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
+
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("{\"id\":" + getId() + ",");
@@ -204,6 +214,8 @@ public class Parameter implements java.io.Serializable {
                 + StringUtils.escapeInJ(getIdentifier()) + "\",");
         stringBuilder.append("\"name\":\"" + StringUtils.escapeInJ(getName())
                 + "\",");
+        stringBuilder.append("\"required\":" + getRequired()
+                + ",");
         stringBuilder.append("\"remark\":\""
                 + StringUtils.escapeInJ(getRemark()) + "\",");
         stringBuilder.append("\"parameterList\":");

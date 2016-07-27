@@ -11,16 +11,14 @@ import com.taobao.rigel.rap.project.bo.Action;
 import com.taobao.rigel.rap.project.bo.Parameter;
 import com.taobao.rigel.rap.project.dao.ProjectDao;
 import com.taobao.rigel.rap.project.service.ProjectMgr;
-import nl.flotsam.xeger.Xeger;
-import org.apache.logging.log4j.LogManager;
-import sun.misc.Cache;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import nl.flotsam.xeger.Xeger;
+import org.apache.logging.log4j.LogManager;
 
 public class MockMgrImpl implements MockMgr {
 
@@ -202,7 +200,7 @@ public class MockMgrImpl implements MockMgr {
         try {
             Future<String> task = executor.submit(new Callable<String>() {
                 public String call() throws Exception {
-                    return  MockjsRunner.renderMockjsRule(mockRule);
+                    return MockjsRunner.renderMockjsRule(mockRule);
                 }
             });
 
@@ -211,7 +209,7 @@ public class MockMgrImpl implements MockMgr {
                 if (task.isDone()) {
                     returnValue = task.get();
                     break;
-                } else if (timeout <= 0){
+                } else if (timeout <= 0) {
                     task.cancel(true);
                     logger.warn("Interrupted mock rule by pattern:" + pattern + ", projectId:" + projectId);
                     break;
@@ -242,9 +240,9 @@ public class MockMgrImpl implements MockMgr {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         try {
             Future<String> task = executor.submit(new Callable<String>() {
-              public String call() throws Exception {
-                  return  MockjsRunner.renderMockjsRule(mockRule);
-              }
+                public String call() throws Exception {
+                    return MockjsRunner.renderMockjsRule(mockRule);
+                }
             });
 
             int timeout = SystemSettings.MOCK_SERVICE_TIMEOUT;
@@ -252,7 +250,7 @@ public class MockMgrImpl implements MockMgr {
                 if (task.isDone()) {
                     returnValue = task.get();
                     break;
-                } else if (timeout <= 0){
+                } else if (timeout <= 0) {
                     task.cancel(true);
                     logger.warn("Interrupted mock rule by actionId:" + actionId);
                     break;
@@ -270,11 +268,11 @@ public class MockMgrImpl implements MockMgr {
         }
 
 
-       if (returnValue == null) {
+        if (returnValue == null) {
             return "{\"isOk\":false, \"errMsg\":\"运行超时,3秒都跑不完,服务器HOLD不住啊,亲的自定义函数是不是写的太夸张了啊...\"}";
-       } else {
-           return StringUtils.chineseToUnicode(returnValue);
-       }
+        } else {
+            return StringUtils.chineseToUnicode(returnValue);
+        }
     }
 
 
@@ -349,7 +347,7 @@ public class MockMgrImpl implements MockMgr {
         if (loadRule) {
             rule = mockDao.getRule(action.getId());
         }
-        String result = getMockRuleFromActionAndRule(rule, action);
+        String result = getMockRuleFromActionAndRule(rule, action, null);
 
 
         if (!loadRule) {
@@ -358,10 +356,15 @@ public class MockMgrImpl implements MockMgr {
         return result;
     }
 
-    public String getMockRuleFromActionAndRule(Rule rule, Action action) {
+    public String getMockRuleFromActionAndRule(Rule rule, Action action, String type) {
         // rule process
         String desc = action.getDescription();
-        Set<Parameter> pList = action.getResponseParameterList();
+        Set<Parameter> pList = null;
+        if ("request".equals(type)) {
+            pList = action.getRequestParameterList();
+        } else {
+            pList = action.getResponseParameterList();
+        }
         // load mock data by Open API
         Action actionMockRules = null;
 

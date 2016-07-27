@@ -10,6 +10,8 @@
     <link type="text/css" rel="stylesheet" href="myWorkspace.css?_r=$!timeStamp"/>
     <script src="${staticRoot}/js/util/jsformat.js"></script>
     <script src="${staticRoot}/js/util/mock-min.js"></script>
+    <script src="${staticRoot}/js/util/json_to_java/tool.js"></script>
+    <script src="${staticRoot}/js/util/json_to_java/to-bean.js"></script>
 </head>
 <body class="workspace #if(!$accessable)read-only#end">
 #bodyNewStart
@@ -515,6 +517,30 @@
             <input type="button" class="btn btn-default" onclick="ws.closeActionOpFloater();" value="取消"/>
         </div>
     </form>
+</div>
+#endFloater
+
+#startFloater("jsonToJava" "JSON转Java Model" 600 230)
+<div class="myfloater">
+    <div>
+        <h5>模拟JSON数据</h5>
+        <textarea style="width:100%;height:150px;overflow-y:auto;" id="json-container"></textarea>
+    </div>
+    <div>
+        <h5>Model数据</h5>
+        <div id="jsonToJava-container"/>
+    </div>
+    <div class="div-floater-control">
+        <input type="button" class="btn btn-default" onclick="ecui.get('jsonToJava').hide();" value="关闭"/>
+    </div>
+    <div style="display: none" id="getset-templ">
+        public void setA(T a) {
+        this.a = a;
+        }
+        public T getA() {
+        return a;
+        }
+    </div>
 </div>
 #endFloater
 

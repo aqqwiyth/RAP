@@ -11,14 +11,13 @@ import com.taobao.rigel.rap.project.bo.Module;
 import com.taobao.rigel.rap.project.bo.Page;
 import com.taobao.rigel.rap.project.bo.Project;
 import com.taobao.rigel.rap.project.service.ProjectMgr;
-import org.apache.logging.log4j.LogManager;
-import org.apache.struts2.ServletActionContext;
-
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.struts2.ServletActionContext;
 
 
 public class MockAction extends ActionBase {
@@ -41,7 +40,16 @@ public class MockAction extends ActionBase {
     private String mode;
     private MockMgr mockMgr;
     private String actionData;
+    private String type;
     private String url;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public String getActionData() {
         return actionData;
@@ -473,7 +481,7 @@ public class MockAction extends ActionBase {
     public String queryMockData() {
         Gson gson = new Gson();
         Action action = gson.fromJson(actionData, Action.class);
-        setContent(mockMgr.getMockRuleFromActionAndRule(null, action));
+        setContent(mockMgr.getMockRuleFromActionAndRule(null, action, type));
 
         return SUCCESS;
     }
