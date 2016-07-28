@@ -85,7 +85,7 @@ function toBeanText(bean) {
             //shoudImportJackson = true;
         }
         //生成属性定义
-        fieldText += "   /** 111" + memo[key].name + "\n是否必填:" + (memo[key].required ? "是" : "否") + " **/";
+        fieldText += "   /** " + memo[key].name + "\n是否必填:" + (memo[key].required ? "是" : "否") + " **/";
         fieldText += "   private " + beanFields[key] + " " + camelKey + ";\n";
         //记录属性类型,beanFields[key]可能有一些值，是List<Date>之类，要替换成Date
         var type = beanFields[key];
@@ -157,10 +157,13 @@ function getBeanFieldFromJson(text, parameterList) {
     for (var key in jsonObject) {
         var val = jsonObject[key];
         $.each(parameterList, function (i, v) {
-            if (v.identifier == key) {
+            if (v.identifier == key || /**兼容rap数组的情况**/ (v.dataType.indexOf("array") == 0 && v.identifier.indexOf(key + "|") == 0)) {
                 memo[key] = v;
             }
         });
+        if (!memo[key]) {
+            console.log(key + " not found")
+        }
         bean[key] = getTypeFromJsonVal(val, key, attrClassAry, memo);
     }
     var className = 'parameterModel';
@@ -205,7 +208,8 @@ function getTypeFromJsonVal(val, key, attrClassAry, memo) {
         return "String";
     } else {
         if (isArray(val)) {
-            var type = getTypeFromJsonVal(val, key, attrClassAry);
+            //数组选第一个
+            var type = getTypeFromJsonVal(val[0], key, attrClassAry, memo);
             return "List<" + type + ">";
         } else {
             //会走到这里，说明属性值是个json，说明属性类型是个自定义类

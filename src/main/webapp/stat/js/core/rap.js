@@ -2751,7 +2751,6 @@ function deepCopy(o) {
 
     ws.showJSONToJava = function (actionId, type) {
         var action = p.getAction(actionId);
-        console.log(action)
         var parameterList = action.requestParameterList;
         var postData = 'type=request&actionData=' + encodeURIComponent(JSON.stringify(action));
         if (type != "request") {
@@ -2766,11 +2765,10 @@ function deepCopy(o) {
                 //text-to-javabean
                 //https://github.com/giantray/text-to-javabean 主要是针对RAP增加了一些注释
                 var json = JSON.stringify(mockDataObj, null, 4);
-                var beans = getBeanFieldFromJson(json, parameterList);
                 $("#json-container").html(json);
                 $("#jsonToJava-container").html("");
+                var beans = getBeanFieldFromJson(json, parameterList);
                 $.each(beans, function (i, v) {
-                    console.log(v);
                     var beanText = toBeanText(v);
                     var textCss = "";
                     if (i != 0) {
