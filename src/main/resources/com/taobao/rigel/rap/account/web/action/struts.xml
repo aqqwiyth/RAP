@@ -44,6 +44,11 @@
             <result name="success" type="velocity">/platform/home.vm</result>
             <result name="error" type="velocity">/account/register.vm</result>
         </action>
+        <action name="loginByDingDing"
+                class="com.taobao.rigel.rap.account.web.action.AccountAction" method="loginByDingDing">
+            <result name="success" type="velocity">/platform/home.vm</result>
+            <result name="error" type="velocity">/account/register.vm</result>
+        </action>
         <action name="myAccount"
                 class="com.taobao.rigel.rap.account.web.action.AccountAction" method="myAccount">
             <result name="success" type="velocity">/account/myAccount.vm</result>

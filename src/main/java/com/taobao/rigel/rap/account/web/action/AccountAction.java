@@ -28,6 +28,7 @@ public class AccountAction extends ActionBase {
     private String name;
     private String email;
     private String token;
+    private String code;
     private String SSO_TOKEN;
     private String BACK_URL;
     private OrganizationMgr organizationMgr;
@@ -257,8 +258,16 @@ public class AccountAction extends ActionBase {
         return token;
     }
 
+    public String getCode() {
+        return code;
+    }
+
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getProfileProperty() {
@@ -350,6 +359,53 @@ public class AccountAction extends ActionBase {
         //从外部登陆
         String string = HTTPUtils.sendGet("http://sync.superboss.cc/user/getUserByToken.do?token=" + token);
         JSONObject object = JSONObject.parseObject(string);
+        User user = new User();
+        user.setAccount(object.getString("name"));
+        user.setPassword(UUID.randomUUID().toString());
+        user.setName(object.getString("name"));
+        user.setEmail(object.getString("email"));
+        //先去数据库里找一把,找不到插入DB一次,再取回来塞会话
+        User dbUser = getAccountMgr().getUser(user.getAccount());
+        if (dbUser == null) {
+            super.getAccountMgr().addUser(user);
+            user = getAccountMgr().getUser(user.getAccount());
+        } else {
+            user = dbUser;
+        }
+        if (user == null) {
+            setErrMsg("出细细达");
+            return ERROR;
+        }
+        Map session = ContextManager.currentSession();
+        session.put(ContextManager.KEY_ACCOUNT, user.getAccount());
+        session.put(ContextManager.KEY_USER_ID, user.getId());
+        session.put(ContextManager.KEY_NAME, user.getName());
+        Set<Role> roleList = new HashSet<Role>();
+        for (Role role : user.getRoleList()) {
+            Role copied = new Role();
+            copied.setId(role.getId());
+            copied.setName(role.getName());
+            roleList.add(copied);
+        }
+        session.put(ContextManager.KEY_ROLE_LIST, roleList);
+        if (getReturnUrl() != null && !getReturnUrl().trim().equals("")) {
+            return "redirect";
+        }
+        return SUCCESS;
+
+    }
+
+    /**
+     * 外部登陆
+     *
+     * @return
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public String loginByDingDing() throws Exception {
+        String token = getCode();
+        //从外部登陆
+        String string = HTTPUtils.sendGet("http://safe.raycloud.com/qrcode/dd_user_auth.jsp?code=" + token);
+        JSONObject object = JSONObject.parseObject(string).getJSONObject("data");
         User user = new User();
         user.setAccount(object.getString("name"));
         user.setPassword(UUID.randomUUID().toString());
